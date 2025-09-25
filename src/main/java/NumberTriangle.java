@@ -1,4 +1,6 @@
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -88,8 +90,19 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        // TODO implement this method
-        return -1;
+        NumberTriangle curr = this;
+        for (char c : path.toCharArray()) {
+            if (c == 'l' && curr.left != null) {
+                curr = curr.left;
+            }
+            else if (c == 'r' && curr.right != null) {
+                curr = curr.right;
+            }
+            else {
+                return -1;
+            }
+        }
+        return curr.getRoot();
     }
 
     /** Read in the NumberTriangle structure from a file.
@@ -109,26 +122,36 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
-
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
         NumberTriangle top = null;
-
         String line = br.readLine();
+
+        ArrayList<NumberTriangle[]> triangle = new ArrayList<>();
+
         while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
+            String[] rootValues = line.split("\\s+");
+            ArrayList <NumberTriangle> row =  new ArrayList<>();
+            for (int i = 0; i < rootValues.length; i++) {
+                NumberTriangle value = new NumberTriangle(Integer.parseInt(rootValues[i]));
+                row.add(value);
+            }
+            triangle.add(row.toArray(new NumberTriangle[0]));
             line = br.readLine();
         }
         br.close();
-        return top;
+
+        for (int j = 0; j < triangle.size() - 1; j++) {
+            NumberTriangle[] thisRow = triangle.get(j);
+            NumberTriangle[] nextRow = triangle.get(j + 1);
+            for (int k = 0; k < thisRow.length; k++) {
+                thisRow[k].left = nextRow[k];
+                thisRow[k].right = nextRow[k + 1];
+            }
+        }
+
+
+        return triangle.get(0)[0];
     }
 
     public static void main(String[] args) throws IOException {
